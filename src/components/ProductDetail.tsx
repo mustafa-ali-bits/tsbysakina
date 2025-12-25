@@ -79,7 +79,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
                 {product.inventory ? 'Add to Cart' : 'Out of Stock'}
               </button>
               <button className="w-full bg-white text-amber-900 py-4 rounded-full font-semibold hover:bg-stone-100 transition-all shadow-md border border-stone-200">
-                Add to Wishlist
+                Order
               </button>
             </div>
 

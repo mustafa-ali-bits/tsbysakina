@@ -1,5 +1,9 @@
+'use client';
+
 import React from 'react';
+import Link from 'next/link';
 import { RefreshCw, ShoppingBag } from 'lucide-react';
+import { useCart } from '../context/CartContext';
 
 interface HeaderProps {
   onRefresh: () => void;
@@ -7,6 +11,8 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ onRefresh, isLoading }) => {
+  const { totalItems } = useCart();
+
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 py-4">
@@ -39,7 +45,16 @@ const Header: React.FC<HeaderProps> = ({ onRefresh, isLoading }) => {
               <a href="#about" className="hover:text-amber-900 transition-colors">About</a>
               <a href="#contact" className="hover:text-amber-900 transition-colors">Contact</a>
             </nav>
-            <ShoppingBag className="w-6 h-6 text-amber-900 cursor-pointer hover:text-amber-700 transition-colors" />
+            <Link href="/cart">
+              <div className="relative">
+                <ShoppingBag className="w-6 h-6 text-amber-900 cursor-pointer hover:text-amber-700 transition-colors" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    {totalItems}
+                  </span>
+                )}
+              </div>
+            </Link>
           </div>
         </div>
       </div>
