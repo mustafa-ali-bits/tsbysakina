@@ -10,7 +10,7 @@ interface PageProps {
 }
 
 export default async function ProductPage({ params }: PageProps) {
-  const products = DataService.getDemoData();
+  const products = await DataService.fetchFromGoogleSheets();
   const product = products.find(p => p.id === parseInt(params.id));
 
   if (!product) {
@@ -18,11 +18,4 @@ export default async function ProductPage({ params }: PageProps) {
   }
 
   return <ProductDetail product={product} />;
-}
-
-export async function generateStaticParams() {
-  const products = DataService.getDemoData();
-  return products.map((product) => ({
-    id: product.id.toString(),
-  }));
 }
