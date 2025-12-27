@@ -112,6 +112,15 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
                 </span>
               </div>
 
+              {/* Vegetarian Symbol */}
+              <div className="absolute top-4 right-4 z-20">
+                <img
+                  src="/Veg_symbol.png"
+                  alt="Vegetarian"
+                  className="w-10 h-10 shadow-lg"
+                />
+              </div>
+
             </div>
           </div>
 

@@ -49,8 +49,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </div>
         )}
 
+        {/* Vegetarian Symbol */}
+        <div className="absolute top-4 right-4">
+          <img
+            src="/Veg_symbol.png"
+            alt="Vegetarian"
+            className="w-8 h-8 shadow-lg"
+          />
+        </div>
 
-        
         <div className="absolute top-4 left-4 flex flex-col gap-2">
           <span className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
             {discount}% OFF
