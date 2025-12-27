@@ -21,7 +21,7 @@ const Page: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedSubcategory, setSelectedSubcategory] = useState('All');
-  const [sortBy, setSortBy] = useState('default');
+  const [sortBy, setSortBy] = useState('rating');
 
   const fetchProducts = async () => {
     setLoading(true);
