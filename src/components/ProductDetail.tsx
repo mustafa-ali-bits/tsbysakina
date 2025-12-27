@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Star, Heart } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { Product } from '../types/product';
 import { ProductUtils } from '../lib/productUtils';
 import { useCart } from '../context/CartContext';
@@ -56,9 +56,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
                   {product.subcategory}
                 </span>
               </div>
-              <button className="absolute top-4 right-4 p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all">
-                <Heart className="w-5 h-5 text-amber-900" />
-              </button>
+
             </div>
           </div>
 

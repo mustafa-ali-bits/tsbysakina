@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Heart, Star } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { Product } from '../types/product';
 import { ProductUtils } from '../lib/productUtils';
 import { useCart } from '../context/CartContext';
@@ -49,9 +49,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </div>
         )}
 
-        <button className="absolute top-4 right-4 p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all" onClick={(e) => e.stopPropagation()}>
-          <Heart className="w-5 h-5 text-amber-900" />
-        </button>
+
         
         <div className="absolute top-4 left-4 flex flex-col gap-2">
           <span className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
