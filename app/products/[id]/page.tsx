@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 import { Product } from '@/types/product';
 import { DataService } from '@/lib/dataService';
 import ProductDetail from '@/components/ProductDetail';
@@ -85,6 +86,44 @@ async function getSheetNames(sheetId: string, apiKey: string) {
 
   const data = await response.json();
   return data.sheets.map((sheet: any) => sheet.properties.title);
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const products = await fetchProductsFromAPI();
+  const product = products.find((p: Product) => p.id === parseInt(params.id));
+
+  if (!product) {
+    return {
+      title: 'Product Not Found | The Sweet Tooth by Sakina',
+      description: 'The product you are looking for could not be found.',
+    };
+  }
+
+  const productImage = product.image.startsWith('http') ? product.image : `https://www.thesweettoothbysakina.in${product.image}`;
+
+  return {
+    title: `${product.name} - ${product.category} | The Sweet Tooth by Sakina`,
+    description: `${product.description} Price: ₹${product.price} (MRP: ₹${product.mrp}). ${product.inventory ? 'In Stock' : 'Out of Stock'}. Handcrafted by Sakina.`,
+    keywords: [product.name, product.category, product.subcategory, 'chocolates', 'handcrafted', 'premium', 'fresh'],
+    openGraph: {
+      title: `${product.name} - ${product.category}`,
+      description: product.description,
+      images: [
+        {
+          url: productImage,
+          width: 800,
+          height: 600,
+          alt: product.name,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${product.name} - ${product.category}`,
+      description: product.description,
+      images: [productImage],
+    },
+  };
 }
 
 export default async function ProductPage({ params }: PageProps) {

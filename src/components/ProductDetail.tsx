@@ -8,6 +8,7 @@ import { Product } from '../types/product';
 import { ProductUtils } from '../lib/productUtils';
 import { useCart } from '../context/CartContext';
 import BackButton from './BackButton';
+import Head from 'next/head';
 
 interface ProductDetailProps {
   product: Product;
@@ -28,12 +29,51 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
     router.push('/cart');
   };
 
-  return (
-    <div className="min-h-screen bg-stone-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <BackButton href="/" productId={product.id} />
+  const productImage = product.image.startsWith('http') ? product.image : `https://www.thesweettoothbysakina.in${product.image}`;
 
-        <div className="grid md:grid-cols-2 gap-6 md:gap-12">
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.name,
+    "description": product.description,
+    "image": productImage,
+    "brand": {
+      "@type": "Brand",
+      "name": "The Sweet Tooth by Sakina"
+    },
+    "category": product.category,
+    "offers": {
+      "@type": "Offer",
+      "price": product.price,
+      "priceCurrency": "INR",
+      "availability": product.inventory ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "seller": {
+        "@type": "Organization",
+        "name": "The Sweet Tooth by Sakina"
+      }
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": product.rating,
+      "reviewCount": Math.floor(product.rating * 10) // Estimated reviews
+    }
+  };
+
+  return (
+    <>
+      <Head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(structuredData),
+          }}
+        />
+      </Head>
+      <div className="min-h-screen bg-stone-50">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <BackButton href="/" productId={product.id} />
+
+          <div className="grid md:grid-cols-2 gap-6 md:gap-12">
           <div className="space-y-6">
             <div className="relative w-full h-[28rem] bg-stone-100 rounded-2xl overflow-hidden">
               {product.image && (
@@ -152,6 +192,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
