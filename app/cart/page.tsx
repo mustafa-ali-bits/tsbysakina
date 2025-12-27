@@ -123,7 +123,12 @@ const CartPage: React.FC = () => {
                     {deliveryFee === 0 ? 'FREE' : `₹${deliveryFee}`}
                   </span>
                 </div>
-                {subtotal < 800 && (
+                {subtotal < 150 && (
+                  <p className="text-xs text-red-500">
+                    Minimum order value is ₹150. Add ₹{(150 - subtotal).toFixed(2)} more.
+                  </p>
+                )}
+                {subtotal >= 150 && subtotal < 800 && (
                   <p className="text-xs text-stone-500">
                     Add ₹{(800 - subtotal).toFixed(2)} more for free delivery
                   </p>
@@ -174,7 +179,7 @@ const CartPage: React.FC = () => {
 
               <button
                 onClick={handleOrderNow}
-                disabled={!name.trim() || !phone.trim() || !address.trim() || cart.length === 0}
+                disabled={!name.trim() || !phone.trim() || !address.trim() || cart.length === 0 || subtotal < 150}
                 className="w-full bg-green-600 text-white py-3 rounded-full font-semibold hover:bg-green-700 disabled:bg-stone-300 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 mb-3"
               >
                 <MessageCircle className="w-5 h-5" />

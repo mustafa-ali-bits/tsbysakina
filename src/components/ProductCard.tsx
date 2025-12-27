@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Heart, Star } from 'lucide-react';
 import { Product } from '../types/product';
 import { ProductUtils } from '../lib/productUtils';
@@ -17,9 +18,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart, cart, updateQuantity } = useCart();
   const cartItem = cart.find(item => item.id === product.id);
   const quantity = cartItem ? cartItem.quantity : 0;
+  const router = useRouter();
 
   return (
-    <div id={`product-${product.id}`} className="group bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+    <div id={`product-${product.id}`} className="group bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer" onClick={() => router.push(`/products/${product.id}`)}>
       <div className="relative h-72 overflow-hidden bg-stone-100">
         {product.image ? (
           <img
@@ -47,7 +49,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </div>
         )}
 
-        <button className="absolute top-4 right-4 p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all">
+        <button className="absolute top-4 right-4 p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all" onClick={(e) => e.stopPropagation()}>
           <Heart className="w-5 h-5 text-amber-900" />
         </button>
         
@@ -99,22 +101,22 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {product.inventory ? (
           <>
             {quantity === 0 ? (
-              <button onClick={() => addToCart({ id: product.id, name: product.name, price: product.price, image: product.image }, 1)} className="w-full bg-amber-800 text-white py-3 rounded-full font-semibold hover:bg-amber-700 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg mb-2">
+              <button onClick={(e) => { e.stopPropagation(); addToCart({ id: product.id, name: product.name, price: product.price, image: product.image }, 1); }} className="w-full bg-amber-800 text-white py-3 rounded-full font-semibold hover:bg-amber-700 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg mb-2">
                 Add to Cart
               </button>
             ) : (
               <div className="flex items-center justify-between mb-2 transition-all duration-300">
-                <button onClick={() => updateQuantity(product.id, quantity - 1)} className="bg-amber-900 text-white py-2 px-4 rounded-full font-semibold hover:bg-amber-800 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg">
+                <button onClick={(e) => { e.stopPropagation(); updateQuantity(product.id, quantity - 1); }} className="bg-amber-900 text-white py-2 px-4 rounded-full font-semibold hover:bg-amber-800 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg">
                   -
                 </button>
                 <span className="text-lg font-semibold text-amber-900 bg-stone-100 px-4 py-2 rounded-full transition-all duration-200">{quantity}</span>
-                <button onClick={() => updateQuantity(product.id, quantity + 1)} className="bg-amber-900 text-white py-2 px-4 rounded-full font-semibold hover:bg-amber-800 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg">
+                <button onClick={(e) => { e.stopPropagation(); updateQuantity(product.id, quantity + 1); }} className="bg-amber-900 text-white py-2 px-4 rounded-full font-semibold hover:bg-amber-800 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg">
                   +
                 </button>
               </div>
             )}
             <Link href={`/products/${product.id}`}>
-              <button className="w-full bg-amber-900 text-white py-3 rounded-full font-semibold hover:bg-amber-800 transition-all shadow-md hover:shadow-lg">
+              <button className="w-full bg-amber-900 text-white py-3 rounded-full font-semibold hover:bg-amber-800 transition-all shadow-md hover:shadow-lg" onClick={(e) => e.stopPropagation()}>
                 View Details
               </button>
             </Link>

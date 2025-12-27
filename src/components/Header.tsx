@@ -15,32 +15,18 @@ const Header: React.FC<HeaderProps> = ({ onRefresh, isLoading }) => {
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 py-4">
+      <div className="max-w-7xl mx-auto px-4 py-0">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-amber-100 to-stone-200 rounded-full flex items-center justify-center overflow-hidden">
+          <div className="flex items-center">
+            <Link href="/">
               <img
-                src="/header-logo.jpeg"
-                alt="The Sweet Tooth by Sakina"
-                className="w-full h-full object-cover rounded-full"
+                src="/Gemini_Generated_Image_h11okvh11okvh11o.png"
+                alt="Logo"
+                className="w-50 h-24 object-contain cursor-pointer"
               />
-            </div>
-            <div>
-              <h1 className="text-2xl font-serif font-bold text-amber-900">The Sweet Tooth</h1>
-              <p className="text-sm text-stone-600 italic">by Sakina</p>
-            </div>
+            </Link>
           </div>
           <div className="flex items-center gap-6">
-            {onRefresh && (
-              <button
-                onClick={onRefresh}
-                className="flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-900 rounded-full hover:bg-amber-200 transition-all text-sm font-medium"
-                disabled={isLoading}
-              >
-                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-                Refresh
-              </button>
-            )}
             <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-stone-700">
               <Link href="/" className="hover:text-amber-900 transition-colors">Home</Link>
               <a href="#products" className="hover:text-amber-900 transition-colors">Products</a>
