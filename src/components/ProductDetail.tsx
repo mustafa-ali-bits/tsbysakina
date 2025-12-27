@@ -35,19 +35,32 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
 
         <div className="grid md:grid-cols-2 gap-6 md:gap-12">
           <div className="space-y-6">
-            <div className="relative h-64 md:h-96 bg-stone-100 rounded-2xl overflow-hidden">
+            <div className="relative w-full h-[28rem] bg-stone-100 rounded-2xl overflow-hidden">
+              {product.image && (
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundImage: `url(${product.image})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    filter: 'blur(20px)',
+                    transform: 'scale(1.1)'
+                  }}
+                />
+              )}
               {product.image ? (
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="relative w-full h-full object-contain z-10"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-stone-200">
                   <p className="text-lg text-stone-500">No image available</p>
                 </div>
               )}
-              <div className="absolute top-4 left-4 flex flex-col gap-2">
+              <div className="absolute top-4 left-4 flex flex-col gap-2 z-20">
                 <span className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
                   {discount}% OFF
                 </span>
