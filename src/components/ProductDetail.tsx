@@ -33,9 +33,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
       <div className="max-w-7xl mx-auto px-4 py-8">
         <BackButton href="/" productId={product.id} />
 
-        <div className="grid md:grid-cols-2 gap-12">
+        <div className="grid md:grid-cols-2 gap-6 md:gap-12">
           <div className="space-y-6">
-            <div className="relative h-96 bg-stone-100 rounded-2xl overflow-hidden">
+            <div className="relative h-64 md:h-96 bg-stone-100 rounded-2xl overflow-hidden">
               {product.image ? (
                 <img
                   src={product.image}
@@ -64,7 +64,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
 
           <div className="space-y-6">
             <div>
-              <h1 className="text-4xl font-serif font-bold text-amber-900 mb-2">{product.name}</h1>
+              <h1 className="text-2xl md:text-4xl font-serif font-bold text-amber-900 mb-2">{product.name}</h1>
               <p className="text-stone-600 text-lg">{product.description}</p>
             </div>
 
@@ -80,7 +80,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
 
             <div className="space-y-2">
               <div className="flex items-center gap-4">
-                <span className="text-3xl font-bold text-amber-900">₹{product.price}</span>
+                <span className="text-2xl md:text-3xl font-bold text-amber-900">₹{product.price}</span>
                 <span className="text-xl text-stone-400 line-through">₹{product.mrp}</span>
                 <span className="text-lg font-semibold text-green-600">Save ₹{savings}</span>
               </div>
@@ -116,7 +116,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
               )}
             </div>
 
-            <div className="bg-stone-100 p-6 rounded-xl">
+            <div className="bg-stone-100 p-4 md:p-6 rounded-xl">
               <h3 className="text-lg font-semibold text-amber-900 mb-3">Product Details</h3>
               <div className="space-y-2 text-sm text-stone-700">
                 <p><span className="font-medium">Category:</span> {product.category}</p>

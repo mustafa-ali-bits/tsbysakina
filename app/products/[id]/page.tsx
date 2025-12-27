@@ -62,7 +62,7 @@ async function fetchProductsFromAPI() {
       image: row[6] || 'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=400',
       rating: parseFloat(row[7]) || 4.5,
       inventory: (row[8] || '').toLowerCase() === 'yes',
-      customizationNote: row[9] || '',
+      customizationNote: row[10] || '',
     }));
 
     return products;
