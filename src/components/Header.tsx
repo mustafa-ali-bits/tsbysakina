@@ -6,8 +6,8 @@ import { RefreshCw, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 interface HeaderProps {
-  onRefresh: () => void;
-  isLoading: boolean;
+  onRefresh?: () => void;
+  isLoading?: boolean;
 }
 
 const Header: React.FC<HeaderProps> = ({ onRefresh, isLoading }) => {
@@ -31,16 +31,18 @@ const Header: React.FC<HeaderProps> = ({ onRefresh, isLoading }) => {
             </div>
           </div>
           <div className="flex items-center gap-6">
-            <button
-              onClick={onRefresh}
-              className="flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-900 rounded-full hover:bg-amber-200 transition-all text-sm font-medium"
-              disabled={isLoading}
-            >
-              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-              Refresh
-            </button>
+            {onRefresh && (
+              <button
+                onClick={onRefresh}
+                className="flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-900 rounded-full hover:bg-amber-200 transition-all text-sm font-medium"
+                disabled={isLoading}
+              >
+                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                Refresh
+              </button>
+            )}
             <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-stone-700">
-              <a href="#" className="hover:text-amber-900 transition-colors">Home</a>
+              <Link href="/" className="hover:text-amber-900 transition-colors">Home</Link>
               <a href="#products" className="hover:text-amber-900 transition-colors">Products</a>
               <a href="#about" className="hover:text-amber-900 transition-colors">About</a>
               <a href="#contact" className="hover:text-amber-900 transition-colors">Contact</a>

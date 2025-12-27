@@ -70,17 +70,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       </div>
 
       <div className="p-6">
-        <div className="flex items-center gap-1 mb-3">
-          {[...Array(5)].map((_, i) => (
-            <Star 
-              key={i} 
-              className={`w-4 h-4 ${i < Math.floor(product.rating) ? 'fill-amber-400 text-amber-400' : 'text-stone-300'}`} 
-            />
-          ))}
-          <span className="text-sm font-medium text-stone-700 ml-2">{product.rating}</span>
+        <div className="flex items-start justify-between mb-2">
+          <h3 className="text-xl font-serif font-bold text-amber-900 flex-1">{product.name}</h3>
+          <div className="flex items-center gap-1 ml-4">
+            {[...Array(5)].map((_, i) => (
+              <Star
+                key={i}
+                className={`w-4 h-4 ${i < Math.floor(product.rating) ? 'fill-amber-400 text-amber-400' : 'text-stone-300'}`}
+              />
+            ))}
+            <span className="text-sm font-medium text-stone-700 ml-1">{product.rating}</span>
+          </div>
         </div>
-
-        <h3 className="text-xl font-serif font-bold text-amber-900 mb-2">{product.name}</h3>
         <p className="text-stone-600 text-sm mb-4 line-clamp-2">{product.description}</p>
 
         <div className="flex items-center justify-between mb-4">

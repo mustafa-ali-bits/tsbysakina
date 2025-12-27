@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { Product } from '@/types/product';
 import { DataService } from '@/lib/dataService';
 import ProductDetail from '@/components/ProductDetail';
+import Header from '@/components/Header';
 import { z } from 'zod';
 
 interface PageProps {
@@ -93,5 +94,10 @@ export default async function ProductPage({ params }: PageProps) {
     notFound();
   }
 
-  return <ProductDetail product={product} />;
+  return (
+    <>
+      <Header />
+      <ProductDetail product={product} />
+    </>
+  );
 }

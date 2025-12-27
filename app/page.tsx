@@ -21,6 +21,7 @@ const Page: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedSubcategory, setSelectedSubcategory] = useState('All');
+  const [sortBy, setSortBy] = useState('default');
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -78,11 +79,12 @@ const Page: React.FC = () => {
   const categories = ProductUtils.getUniqueCategories(products);
   const subcategories = ProductUtils.getSubcategories(products, selectedCategory);
   const filteredProducts = ProductUtils.filterProducts(
-    products, 
-    searchTerm, 
-    selectedCategory, 
+    products,
+    searchTerm,
+    selectedCategory,
     selectedSubcategory
   );
+  const sortedProducts = ProductUtils.sortProducts(filteredProducts, sortBy);
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -94,16 +96,18 @@ const Page: React.FC = () => {
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
       />
-      <SearchAndFilter 
+      <SearchAndFilter
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         selectedCategory={selectedCategory}
         subcategories={subcategories}
         selectedSubcategory={selectedSubcategory}
         onSelectSubcategory={setSelectedSubcategory}
+        sortBy={sortBy}
+        onSortChange={setSortBy}
       />
-      <ProductsGrid 
-        products={filteredProducts}
+      <ProductsGrid
+        products={sortedProducts}
         loading={loading}
         selectedCategory={selectedCategory}
         selectedSubcategory={selectedSubcategory}

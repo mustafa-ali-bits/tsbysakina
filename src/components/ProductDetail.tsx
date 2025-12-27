@@ -1,7 +1,11 @@
+'use client';
+
 import React from 'react';
+import Link from 'next/link';
 import { Star, Heart } from 'lucide-react';
 import { Product } from '../types/product';
 import { ProductUtils } from '../lib/productUtils';
+import { useCart } from '../context/CartContext';
 import BackButton from './BackButton';
 
 interface ProductDetailProps {
@@ -11,6 +15,9 @@ interface ProductDetailProps {
 const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
   const discount = ProductUtils.getDiscountPercentage(product.mrp, product.price);
   const savings = ProductUtils.getSavingsAmount(product.mrp, product.price);
+  const { addToCart, cart, updateQuantity, totalItems } = useCart();
+  const cartItem = cart.find(item => item.id === product.id);
+  const quantity = cartItem ? cartItem.quantity : 0;
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -79,19 +86,32 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
             </div>
 
             <div className="space-y-4">
-              <button
-                className={`w-full py-4 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl ${
-                  product.inventory
-                    ? 'bg-amber-900 text-white hover:bg-amber-800'
-                    : 'bg-stone-400 text-stone-600 cursor-not-allowed'
-                }`}
-                disabled={!product.inventory}
-              >
-                {product.inventory ? 'Add to Cart' : 'Out of Stock'}
-              </button>
-              <button className="w-full bg-white text-amber-900 py-4 rounded-full font-semibold hover:bg-stone-100 transition-all shadow-md border border-stone-200">
-                Order
-              </button>
+              {product.inventory ? (
+                <>
+                  {quantity === 0 ? (
+                    <button onClick={() => addToCart({ id: product.id, name: product.name, price: product.price, image: product.image }, 1)} className="w-4/5 bg-amber-800 text-white py-4 rounded-full font-semibold hover:bg-amber-700 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg">
+                      Add to Cart
+                    </button>
+                  ) : (
+                    <div className="flex items-center justify-between w-4/5">
+                      <button onClick={() => updateQuantity(product.id, quantity - 1)} className="bg-amber-900 text-white py-4 px-6 rounded-full font-semibold hover:bg-amber-800 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg">
+                        -
+                      </button>
+                      <span className="text-xl font-semibold text-amber-900 bg-stone-100 px-6 py-4 rounded-full transition-all duration-200">{quantity}</span>
+                      <button onClick={() => updateQuantity(product.id, quantity + 1)} className="bg-amber-900 text-white py-4 px-6 rounded-full font-semibold hover:bg-amber-800 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg">
+                        +
+                      </button>
+                    </div>
+                  )}
+                  <button className="w-4/5 bg-white text-amber-900 py-4 rounded-full font-semibold hover:bg-stone-100 transition-all shadow-md border border-stone-200">
+                    Order
+                  </button>
+                </>
+              ) : (
+                <button className="w-full bg-stone-400 text-stone-600 py-4 rounded-full font-semibold cursor-not-allowed" disabled>
+                  Out of Stock
+                </button>
+              )}
             </div>
 
             <div className="bg-stone-100 p-6 rounded-xl">

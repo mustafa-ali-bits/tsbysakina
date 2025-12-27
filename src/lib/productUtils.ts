@@ -29,5 +29,26 @@ export const ProductUtils = {
       const matchesSubcategory = selectedSubcategory === 'All' || product.subcategory === selectedSubcategory;
       return matchesSearch && matchesCategory && matchesSubcategory;
     });
+  },
+
+  sortProducts(products: Product[], sortBy: string): Product[] {
+    const sortedProducts = [...products];
+
+    switch (sortBy) {
+      case 'price-low':
+        return sortedProducts.sort((a, b) => a.price - b.price);
+      case 'price-high':
+        return sortedProducts.sort((a, b) => b.price - a.price);
+      case 'discount':
+        return sortedProducts.sort((a, b) => {
+          const discountA = this.getDiscountPercentage(a.mrp, a.price);
+          const discountB = this.getDiscountPercentage(b.mrp, b.price);
+          return discountB - discountA;
+        });
+      case 'rating':
+        return sortedProducts.sort((a, b) => b.rating - a.rating);
+      default:
+        return sortedProducts;
+    }
   }
 };
