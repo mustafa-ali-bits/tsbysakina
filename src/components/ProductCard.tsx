@@ -7,6 +7,9 @@ import { Star } from 'lucide-react';
 import { Product } from '../types/product';
 import { ProductUtils } from '../lib/productUtils';
 import { useCart } from '../context/CartContext';
+import VariantSelector from './VariantSelector';
+import AnimatedAddToCartButton from './AnimatedAddToCartButton';
+import { DEFAULT_VARIANT } from '../lib/constants';
 
 interface ProductCardProps {
   product: Product;
@@ -15,9 +18,8 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const discount = ProductUtils.getDiscountPercentage(product.mrp, product.price);
   const savings = ProductUtils.getSavingsAmount(product.mrp, product.price);
-  const { addToCart, cart, updateQuantity } = useCart();
-  const cartItem = cart.find(item => item.id === product.id);
-  const quantity = cartItem ? cartItem.quantity : 0;
+  const { addToCart } = useCart();
+  const [selectedVariant, setSelectedVariant] = React.useState(DEFAULT_VARIANT);
   const router = useRouter();
 
   return (
@@ -103,21 +105,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
         {product.inventory ? (
           <>
-            {quantity === 0 ? (
-              <button onClick={(e) => { e.stopPropagation(); addToCart({ id: product.id, name: product.name, price: product.price, image: product.image }, 1); }} className="w-full bg-amber-800 text-white py-2 rounded-full font-semibold hover:bg-amber-700 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg mb-1 text-sm">
-                Add to Cart
-              </button>
-            ) : (
-              <div className="flex items-center justify-between mb-1 transition-all duration-300">
-                <button onClick={(e) => { e.stopPropagation(); updateQuantity(product.id, quantity - 1); }} className="bg-amber-900 text-white py-1 px-3 rounded-full font-semibold hover:bg-amber-800 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg text-sm">
-                  -
-                </button>
-                <span className="text-base font-semibold text-amber-900 bg-stone-100 px-3 py-1 rounded-full transition-all duration-200">{quantity}</span>
-                <button onClick={(e) => { e.stopPropagation(); updateQuantity(product.id, quantity + 1); }} className="bg-amber-900 text-white py-1 px-3 rounded-full font-semibold hover:bg-amber-800 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg text-sm">
-                  +
-                </button>
+            {product.category === 'Chocolates' && (
+              <div className="mb-3">
+                <VariantSelector
+                  selectedVariant={selectedVariant}
+                  onVariantChange={setSelectedVariant}
+                  compact={true}
+                />
               </div>
             )}
+            <AnimatedAddToCartButton
+              onClick={() => {
+                addToCart(
+                  { id: product.id, name: product.name, price: product.price, image: product.image },
+                  1,
+                  product.category === 'Chocolates' ? selectedVariant : undefined
+                );
+              }}
+              className="w-full py-2 rounded-full mb-1 text-sm"
+            />
             <Link href={`/products/${product.id}`}>
               <button className="w-full bg-amber-900 text-white py-2 rounded-full font-semibold hover:bg-amber-800 transition-all shadow-md hover:shadow-lg text-sm" onClick={(e) => e.stopPropagation()}>
                 View Details

@@ -4,6 +4,7 @@ import Script from 'next/script'
 import './globals.css'
 import { CartProvider } from '../src/context/CartContext'
 import { Analytics } from "@vercel/analytics/next"
+import AddToCartAlertWrapper from '../src/components/AddToCartAlertWrapper'
 
 
 const inter = Inter({ subsets: ['latin'] })

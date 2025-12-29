@@ -9,16 +9,19 @@ interface CartItem {
   image: string;
   quantity: number;
   customization: string;
+  variant?: string;
 }
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (product: { id: number; name: string; price: number; image: string }, quantity: number) => void;
-  removeFromCart: (id: number) => void;
-  updateQuantity: (id: number, quantity: number) => void;
-  updateCustomization: (id: number, customization: string) => void;
+  addToCart: (product: { id: number; name: string; price: number; image: string }, quantity: number, variant?: string, customizationNote?: string, startPosition?: { x: number; y: number }) => void;
+  removeFromCart: (id: number, variant?: string) => void;
+  updateQuantity: (id: number, quantity: number, variant?: string) => void;
+  updateCustomization: (id: number, customization: string, variant?: string) => void;
   totalItems: number;
   clearCart: () => void;
+  alert: { show: boolean; productName: string; variant?: string; quantity: number; startPosition?: { x: number; y: number }; productImage?: string } | null;
+  closeAlert: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -37,43 +40,100 @@ interface CartProviderProps {
 
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [alert, setAlert] = useState<{ show: boolean; productName: string; variant?: string; quantity: number; startPosition?: { x: number; y: number }; productImage?: string } | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
 
-  const addToCart = (product: { id: number; name: string; price: number; image: string }, quantity: number) => {
-    setCart(prevCart => {
-      const existingItem = prevCart.find(item => item.id === product.id);
-      if (existingItem) {
-        return prevCart.map(item =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      } else {
-        return [...prevCart, { ...product, quantity, customization: '' }];
+  // Load cart from localStorage after hydration
+  React.useEffect(() => {
+    try {
+      const savedCart = localStorage.getItem('cart');
+      if (savedCart) {
+        setCart(JSON.parse(savedCart));
       }
+    } catch (error) {
+      console.error('Error loading cart from localStorage:', error);
+    }
+    setIsHydrated(true);
+  }, []);
+
+  // Save cart to localStorage whenever it changes (only after hydration)
+  React.useEffect(() => {
+    if (isHydrated && typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('cart', JSON.stringify(cart));
+      } catch (error) {
+        console.error('Error saving cart to localStorage:', error);
+      }
+    }
+  }, [cart, isHydrated]);
+
+  const addToCart = (product: { id: number; name: string; price: number; image: string }, quantity: number, variant?: string, customizationNote?: string, startPosition?: { x: number; y: number }) => {
+    setCart(prevCart => {
+      const cartKey = variant ? `${product.id}-${variant}` : product.id.toString();
+      const existingItem = prevCart.find(item => {
+        const itemKey = item.variant ? `${item.id}-${item.variant}` : item.id.toString();
+        return itemKey === cartKey;
+      });
+
+      if (existingItem) {
+        return prevCart.map(item => {
+          const itemKey = item.variant ? `${item.id}-${item.variant}` : item.id.toString();
+          return itemKey === cartKey
+            ? { ...item, quantity: item.quantity + quantity }
+            : item;
+        });
+      } else {
+        return [...prevCart, { ...product, quantity, customization: customizationNote || '', variant }];
+      }
+    });
+
+    // Trigger alert
+    setAlert({
+      show: true,
+      productName: product.name,
+      variant,
+      quantity,
+      startPosition,
+      productImage: product.image
     });
   };
 
-  const removeFromCart = (id: number) => {
-    setCart(prevCart => prevCart.filter(item => item.id !== id));
+  const closeAlert = () => {
+    setAlert(null);
   };
 
-  const updateQuantity = (id: number, quantity: number) => {
+  const removeFromCart = (id: number, variant?: string) => {
+    setCart(prevCart => prevCart.filter(item => {
+      if (variant) {
+        return !(item.id === id && item.variant === variant);
+      }
+      return item.id !== id;
+    }));
+  };
+
+  const updateQuantity = (id: number, quantity: number, variant?: string) => {
     if (quantity <= 0) {
-      removeFromCart(id);
+      removeFromCart(id, variant);
     } else {
       setCart(prevCart =>
-        prevCart.map(item =>
-          item.id === id ? { ...item, quantity } : item
-        )
+        prevCart.map(item => {
+          if (variant) {
+            return (item.id === id && item.variant === variant) ? { ...item, quantity } : item;
+          }
+          return item.id === id ? { ...item, quantity } : item;
+        })
       );
     }
   };
 
-  const updateCustomization = (id: number, customization: string) => {
+  const updateCustomization = (id: number, customization: string, variant?: string) => {
     setCart(prevCart =>
-      prevCart.map(item =>
-        item.id === id ? { ...item, customization } : item
-      )
+      prevCart.map(item => {
+        if (variant) {
+          return (item.id === id && item.variant === variant) ? { ...item, customization } : item;
+        }
+        return item.id === id ? { ...item, customization } : item;
+      })
     );
   };
 
@@ -91,7 +151,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       updateQuantity,
       updateCustomization,
       totalItems,
-      clearCart
+      clearCart,
+      alert,
+      closeAlert
     }}>
       {children}
     </CartContext.Provider>

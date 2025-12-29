@@ -34,7 +34,7 @@ const Header: React.FC<HeaderProps> = ({ onRefresh, isLoading }) => {
               <a href="#contact" className="hover:text-amber-900 transition-colors">Contact</a>
             </nav>
             <Link href="/cart">
-              <div className="relative">
+              <div className="relative" data-cart-icon>
                 <ShoppingBag className="w-6 h-6 text-amber-900 cursor-pointer hover:text-amber-700 transition-colors" />
                 {totalItems > 0 && (
                   <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">

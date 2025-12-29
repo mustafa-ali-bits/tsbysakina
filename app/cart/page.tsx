@@ -15,10 +15,12 @@ const CartPage: React.FC = () => {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
+  const [showCustomization, setShowCustomization] = useState<{[key: string]: boolean}>({});
 
   const handleOrderNow = () => {
     const message = `New Order:\n\nCustomer Details:\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\n\nOrder Items:\n${cart.map(item => {
-      const baseItem = `- ${item.name} x ${item.quantity}: ₹${(item.price * item.quantity).toFixed(2)}`;
+      const variant = item.variant ? ` (${item.variant})` : '';
+      const baseItem = `- ${item.name}${variant} x ${item.quantity}: ₹${(item.price * item.quantity).toFixed(2)}`;
       const customization = item.customization ? `\n  Customization: ${item.customization}` : '';
       return baseItem + customization;
     }).join('\n')}\n\nSubtotal: ₹${subtotal.toFixed(2)}\nDelivery Fee: ${deliveryFee === 0 ? 'FREE' : `₹${deliveryFee}`}\nTotal: ₹${total.toFixed(2)}`;
@@ -68,7 +70,7 @@ const CartPage: React.FC = () => {
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
             {cart.map((item) => (
-              <div key={item.id} className="bg-white rounded-2xl shadow-md p-6">
+              <div key={`${item.id}-${item.variant || 'default'}`} className="bg-white rounded-2xl shadow-md p-6">
                 <div className="flex items-center gap-6">
                   <img
                     src={item.image}
@@ -76,45 +78,81 @@ const CartPage: React.FC = () => {
                     className="w-20 h-20 object-cover rounded-xl"
                   />
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-amber-900 mb-1">{item.name}</h3>
-                    <p className="text-stone-600 text-sm mb-3">₹{item.price} each</p>
+                    <div className="mb-1">
+                      <h3 className="text-base font-semibold text-amber-900 leading-tight">
+                        {item.name}
+                      </h3>
+                      {item.variant && (
+                        <p className="text-xs text-amber-700 font-medium mt-0.5 leading-tight">
+                          {item.variant}
+                        </p>
+                      )}
+                    </div>
+                    <p className="text-stone-600 text-xs mb-2">₹{item.price} each</p>
                     <div className="flex items-center gap-3">
                       <div className="flex items-center bg-stone-100 rounded-full">
                         <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          onClick={() => updateQuantity(item.id, item.quantity - 1, item.variant)}
                           className="p-2 text-amber-900 hover:bg-amber-100 rounded-full transition-colors"
                         >
                           <Minus className="w-4 h-4" />
                         </button>
                         <span className="px-4 py-2 text-amber-900 font-semibold">{item.quantity}</span>
                         <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          onClick={() => updateQuantity(item.id, item.quantity + 1, item.variant)}
                           className="p-2 text-amber-900 hover:bg-amber-100 rounded-full transition-colors"
                         >
                           <Plus className="w-4 h-4" />
                         </button>
                       </div>
                       <button
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => removeFromCart(item.id, item.variant)}
                         className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                     <div className="mt-3">
-                      <label className="block text-sm font-medium text-stone-700 mb-1">Customization</label>
-                      <input
-                        type="text"
-                        value={item.customization}
-                        onChange={(e) => updateCustomization(item.id, e.target.value)}
-                        className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
-                        placeholder="e.g., Add nuts, special message, etc."
-                      />
+                      {!showCustomization[`${item.id}-${item.variant || 'default'}`] ? (
+                        <button
+                          onClick={() => setShowCustomization(prev => ({
+                            ...prev,
+                            [`${item.id}-${item.variant || 'default'}`]: true
+                          }))}
+                          className="text-sm text-stone-600 hover:text-amber-700 underline"
+                        >
+                          Add a note
+                        </button>
+                      ) : (
+                        <div className="space-y-2">
+                          <label className="block text-sm font-medium text-stone-700">
+                            Add a note (optional)
+                          </label>
+                          <input
+                            type="text"
+                            value={item.customization}
+                            onChange={(e) => updateCustomization(item.id, e.target.value, item.variant)}
+                            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
+                            placeholder="e.g., Add nuts, special message, etc."
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => setShowCustomization(prev => ({
+                                ...prev,
+                                [`${item.id}-${item.variant || 'default'}`]: false
+                              }))}
+                              className="text-xs text-stone-500 hover:text-stone-700"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-xl font-bold text-amber-900">₹{item.price * item.quantity}</p>
-                    <p className="text-sm text-stone-500">₹{item.price} × {item.quantity}</p>
+                    <p className="text-lg font-bold text-amber-900">₹{item.price * item.quantity}</p>
+                    <p className="text-xs text-stone-500 whitespace-nowrap">₹{item.price} × {item.quantity}</p>
                   </div>
                 </div>
               </div>

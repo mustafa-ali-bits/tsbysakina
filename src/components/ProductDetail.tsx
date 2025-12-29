@@ -1,13 +1,15 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Star } from 'lucide-react';
+import { Star, Plus, Minus, ShoppingCart } from 'lucide-react';
 import { Product } from '../types/product';
 import { ProductUtils } from '../lib/productUtils';
 import { useCart } from '../context/CartContext';
 import BackButton from './BackButton';
+import VariantSelector from './VariantSelector';
+import AnimatedAddToCartButton from './AnimatedAddToCartButton';
+import { DEFAULT_VARIANT } from '../lib/constants';
 import Head from 'next/head';
 
 interface ProductDetailProps {
@@ -18,9 +20,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
   const router = useRouter();
   const discount = ProductUtils.getDiscountPercentage(product.mrp, product.price);
   const savings = ProductUtils.getSavingsAmount(product.mrp, product.price);
-  const { addToCart, cart, updateQuantity, totalItems } = useCart();
-  const cartItem = cart.find(item => item.id === product.id);
-  const quantity = cartItem ? cartItem.quantity : 0;
+  const { addToCart } = useCart();
+  const [selectedVariant, setSelectedVariant] = React.useState(DEFAULT_VARIANT);
+  const [quantity, setQuantity] = React.useState(1);
 
   const handleOrderNow = () => {
     if (quantity === 0) {
@@ -73,8 +75,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
         <div className="max-w-7xl mx-auto px-4 py-8">
           <BackButton href="/" productId={product.id} />
 
-          <div className="grid md:grid-cols-2 gap-6 md:gap-12">
-          <div className="space-y-6">
+          <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+          <div className="space-y-4">
             <div className="relative w-full h-[28rem] bg-stone-100 rounded-2xl overflow-hidden">
               {product.image && (
                 <div
@@ -124,52 +126,96 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-2">
             <div>
-              <h1 className="text-2xl md:text-4xl font-serif font-bold text-amber-900 mb-2">{product.name}</h1>
-              <p className="text-stone-600 text-lg">{product.description}</p>
+              <h1 className="text-lg md:text-2xl font-serif font-bold text-amber-900 leading-tight">{product.name}</h1>
+              <p className="text-stone-600 text-sm md:text-base leading-tight mt-1">{product.description}</p>
             </div>
 
-            <div className="flex items-center gap-1">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`w-5 h-5 ${i < Math.floor(product.rating) ? 'fill-amber-400 text-amber-400' : 'text-stone-300'}`}
-                />
-              ))}
-              <span className="text-lg font-medium text-stone-700 ml-2">{product.rating} / 5.0</span>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center gap-4">
-                <span className="text-2xl md:text-3xl font-bold text-amber-900">₹{product.price}</span>
-                <span className="text-xl text-stone-400 line-through">₹{product.mrp}</span>
-                <span className="text-lg font-semibold text-green-600">Save ₹{savings}</span>
+            <div className="flex items-center justify-between">
+              <div className="text-left">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl md:text-2xl font-bold text-amber-900">₹{product.price}</span>
+                  <span className="text-sm text-stone-400 line-through">₹{product.mrp}</span>
+                </div>
+                <p className="text-xs text-green-600 font-medium">Save ₹{savings} ({discount}% off)</p>
               </div>
-              <p className="text-stone-600">Limited time offer - {discount}% discount!</p>
+              <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-3 h-3 ${i < Math.floor(product.rating) ? 'fill-amber-400 text-amber-400' : 'text-stone-300'}`}
+                  />
+                ))}
+                <span className="text-sm font-medium text-stone-700 ml-1">{product.rating}</span>
+              </div>
             </div>
 
             <div className="space-y-4">
               {product.inventory ? (
                 <>
-                  {quantity === 0 ? (
-                    <button onClick={() => addToCart({ id: product.id, name: product.name, price: product.price, image: product.image }, 1)} className="w-full bg-amber-800 text-white py-4 rounded-full font-semibold hover:bg-amber-700 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg">
-                      Add to Cart
-                    </button>
-                  ) : (
-                    <div className="flex items-center justify-between w-full">
-                      <button onClick={() => updateQuantity(product.id, quantity - 1)} className="bg-amber-900 text-white py-4 px-6 rounded-full font-semibold hover:bg-amber-800 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg">
-                        -
-                      </button>
-                      <span className="text-xl font-semibold text-amber-900 bg-stone-100 px-6 py-4 rounded-full transition-all duration-200">{quantity}</span>
-                      <button onClick={() => updateQuantity(product.id, quantity + 1)} className="bg-amber-900 text-white py-4 px-6 rounded-full font-semibold hover:bg-amber-800 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg">
-                        +
-                      </button>
+                  {product.category === 'Chocolates' && (
+                    <div className="mb-3">
+                      <VariantSelector
+                        selectedVariant={selectedVariant}
+                        onVariantChange={setSelectedVariant}
+                        compact={true}
+                      />
                     </div>
                   )}
-                  <button onClick={handleOrderNow} className="w-full bg-white text-amber-900 py-4 rounded-full font-semibold hover:bg-stone-100 transition-all shadow-md border border-stone-200">
-                    {quantity > 0 ? 'Go to Cart' : 'Order'}
-                  </button>
+
+                  {/* Quantity Selector */}
+                  <div className="mb-3">
+                    <div className="flex items-center justify-center gap-4">
+                      <label className="text-sm font-medium text-stone-700">Quantity</label>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                          className="w-10 h-10 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-full flex items-center justify-center transition-colors"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="text-xl font-bold text-amber-900 min-w-[2.5rem] text-center">
+                          {quantity}
+                        </span>
+                        <button
+                          onClick={() => setQuantity(quantity + 1)}
+                          className="w-10 h-10 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-full flex items-center justify-center transition-colors"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <AnimatedAddToCartButton
+                      onClick={() => {
+                        addToCart(
+                          { id: product.id, name: product.name, price: product.price, image: product.image },
+                          quantity,
+                          product.category === 'Chocolates' ? selectedVariant : undefined
+                        );
+                        router.push('/cart');
+                      }}
+                      className="w-full py-2 md:py-3 text-sm md:text-base"
+                    >
+                      Order Now 🚀
+                    </AnimatedAddToCartButton>
+                    <AnimatedAddToCartButton
+                      onClick={() => {
+                        addToCart(
+                          { id: product.id, name: product.name, price: product.price, image: product.image },
+                          quantity,
+                          product.category === 'Chocolates' ? selectedVariant : undefined
+                        );
+                      }}
+                      className="w-full py-2 md:py-3 bg-amber-600 text-white border-2 border-amber-500 text-sm md:text-base"
+                    >
+                      <ShoppingCart className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                      Add to Cart
+                    </AnimatedAddToCartButton>
+                  </div>
                 </>
               ) : (
                 <button className="w-full bg-stone-400 text-stone-600 py-4 rounded-full font-semibold cursor-not-allowed" disabled>
@@ -178,22 +224,21 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
               )}
             </div>
 
-            <div className="bg-stone-100 p-4 md:p-6 rounded-xl">
-              <h3 className="text-lg font-semibold text-amber-900 mb-3">Product Details</h3>
-              <div className="space-y-2 text-sm text-stone-700">
+            <div className="bg-stone-100 p-3 md:p-4 rounded-xl">
+              <h3 className="text-base font-semibold text-amber-900 mb-2">Product Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-stone-700">
                 <p><span className="font-medium">Category:</span> {product.category}</p>
-                <p><span className="font-medium">Subcategory:</span> {product.subcategory}</p>
                 <p><span className="font-medium">Rating:</span> {product.rating}/5</p>
-                <p><span className="font-medium">MRP:</span> ₹{product.mrp}</p>
+                <p><span className="font-medium">Subcategory:</span> {product.subcategory}</p>
                 <p><span className="font-medium">Price:</span> ₹{product.price}</p>
+                <p><span className="font-medium">MRP:</span> ₹{product.mrp}</p>
                 <p><span className={`font-medium ${product.inventory ? 'text-green-600' : 'text-red-600'}`}>
-                  Availability: {product.inventory ? 'In Stock' : 'Out of Stock'}
+                  {product.inventory ? 'In Stock' : 'Out of Stock'}
                 </span></p>
               </div>
               {product.customizationNote && (
-                <div className="mt-4 pt-4 border-t border-stone-200">
-                  <h4 className="text-md font-semibold text-amber-900 mb-2">Customization Options</h4>
-                  <p className="text-sm text-stone-600">{product.customizationNote}</p>
+                <div className="mt-2">
+                  <p className="text-xs text-stone-500 italic">{product.customizationNote}</p>
                 </div>
               )}
             </div>
