@@ -71,8 +71,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
           }}
         />
       </Head>
-      <div className="min-h-screen bg-stone-50">
-        <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="min-h-screen bg-stone-50 w-full overflow-x-hidden">
+        <div className="max-w-7xl mx-auto px-4 py-8 w-full">
           <BackButton href="/" productId={product.id} />
 
           <div className="grid md:grid-cols-2 gap-6 md:gap-8">
