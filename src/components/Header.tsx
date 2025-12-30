@@ -15,15 +15,15 @@ const Header: React.FC<HeaderProps> = ({ onRefresh, isLoading }) => {
   const { totalItems } = useCart();
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50 h-26">
-      <div>
+    <header className="sticky top-0 z-50 bg-white shadow-sm">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Link href="/">
               <img
                 src="/Gemini_Generated_Image_h11okvh11okvh11o.png"
                 alt="Logo"
-                className="w-52 h-26 object-contain cursor-pointer"
+                className="w-52 h-20 object-contain cursor-pointer"
               />
             </Link>
           </div>
