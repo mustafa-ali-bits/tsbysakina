@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { RefreshCw, ShoppingBag } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useCart } from '../context/CartContext';
 
 interface HeaderProps {
@@ -37,9 +38,14 @@ const Header: React.FC<HeaderProps> = ({ onRefresh, isLoading }) => {
               <div className="relative" data-cart-icon>
                 <ShoppingBag className="w-6 h-6 text-amber-900 cursor-pointer hover:text-amber-700 transition-colors" />
                 {totalItems > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    key={totalItems} // Re-animate on change
+                    className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"
+                  >
                     {totalItems}
-                  </span>
+                  </motion.span>
                 )}
               </div>
             </Link>

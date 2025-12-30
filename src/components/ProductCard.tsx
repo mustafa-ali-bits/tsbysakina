@@ -24,12 +24,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   return (
     <div id={`product-${product.id}`} className="group bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer" onClick={() => router.push(`/products/${product.id}`)}>
-            <div className="relative h-80 md:h-96 overflow-hidden bg-stone-100">
+      <div className="relative h-80 md:h-96 overflow-hidden bg-stone-100">
         {product.image ? (
           <img
             src={product.image}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              if (target.src !== 'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=400') {
+                target.src = 'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=400';
+              }
+            }}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-stone-200">
