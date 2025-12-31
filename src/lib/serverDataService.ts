@@ -1,7 +1,78 @@
 import { Product } from '@/types/product';
+import { Promotion } from '@/types/promotion';
 import { DataService } from '@/lib/dataService';
 
 export const ServerDataService = {
+  async fetchPromotions(): Promise<Promotion[]> {
+    try {
+      const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+      const API_KEY = process.env.GOOGLE_API_KEY;
+
+      if (!SHEET_ID || !API_KEY) {
+        console.warn('Missing Google Sheets credentials, returning empty promotions');
+        return [];
+      }
+
+      const sheetName = 'Promotions';
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${sheetName}?key=${API_KEY}&_=${Date.now()}`;
+
+      const response = await fetch(url, {
+        next: { revalidate: 60 },
+      });
+
+      if (!response.ok) {
+        console.warn(`Failed to fetch promotions from sheet "${sheetName}"`);
+        return [];
+      }
+
+      const data = await response.json();
+      const rows = data.values;
+
+      if (!rows || rows.length < 2) {
+        console.warn('No promotions data found in the sheet');
+        return [];
+      }
+
+      const dataRows = rows.slice(1); // Skip header row
+      const filteredRows = dataRows.filter((row: string[]) => row && row.length > 0 && row[0] && row[0].trim() !== '');
+
+      const promotions = filteredRows
+        .map((row: string[], index: number) => {
+          // Column E (index 4) - Activate Y/N
+          const isActive = (row[4] || '').toUpperCase() === 'Y';
+
+          // Only include active promotions
+          if (!isActive) return null;
+
+          // Column G (index 6) - Discount Type
+          const discountTypeRaw = (row[6] || 'Percentage').trim();
+          const discountType: 'Fixed' | 'Percentage' =
+            discountTypeRaw.toLowerCase() === 'fixed' ? 'Fixed' : 'Percentage';
+
+          // Column I (index 8) - Show on Site Y/N (default Y)
+          const showOnSite = (row[8] || 'Y').toUpperCase() !== 'N';
+
+          return {
+            id: index + 1,
+            description: row[0] || '',           // Column A
+            imageUrl: row[1] || '',              // Column B - optional
+            couponName: row[2] || '',            // Column C
+            discount: parseFloat(row[3]) || 0,   // Column D
+            discountType,                        // Column G
+            isActive: true,
+            minOrderValue: parseFloat(row[7]) || 0,  // Column H
+            showOnSite,                          // Column I
+          };
+        })
+        .filter((p: Promotion | null): p is Promotion => p !== null);
+
+      return promotions;
+    } catch (error) {
+      console.error('Error fetching promotions from server:', error);
+      return [];
+    }
+  },
+
   async fetchProducts(): Promise<Product[]> {
     try {
       const SHEET_ID = process.env.GOOGLE_SHEET_ID;

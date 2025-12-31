@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Star, Plus, Minus, ShoppingCart } from 'lucide-react';
 import { Product } from '../types/product';
@@ -10,7 +11,6 @@ import BackButton from './BackButton';
 import VariantSelector from './VariantSelector';
 import AnimatedAddToCartButton from './AnimatedAddToCartButton';
 import { DEFAULT_VARIANT } from '../lib/constants';
-import Head from 'next/head';
 
 interface ProductDetailProps {
   product: Product;
@@ -23,6 +23,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
   const { addToCart } = useCart();
   const [selectedVariant, setSelectedVariant] = React.useState(DEFAULT_VARIANT);
   const [quantity, setQuantity] = React.useState(1);
+  const [imageError, setImageError] = React.useState(false);
 
   const handleOrderNow = () => {
     if (quantity === 0) {
@@ -31,46 +32,17 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
     router.push('/cart');
   };
 
-  const productImage = product.image.startsWith('http') ? product.image : `https://www.thesweettoothbysakina.in${product.image}`;
-
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    "name": product.name,
-    "description": product.description,
-    "image": productImage,
-    "brand": {
-      "@type": "Brand",
-      "name": "The Sweet Tooth by Sakina"
-    },
-    "category": product.category,
-    "offers": {
-      "@type": "Offer",
-      "price": product.price,
-      "priceCurrency": "INR",
-      "availability": product.inventory ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-      "seller": {
-        "@type": "Organization",
-        "name": "The Sweet Tooth by Sakina"
-      }
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": product.rating,
-      "reviewCount": Math.floor(product.rating * 10) // Estimated reviews
+  const handleImageError = () => {
+    if (!imageError) {
+      setImageError(true);
     }
   };
 
+  const fallbackImage = 'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=400';
+  const displayImage = imageError ? fallbackImage : product.image;
+
   return (
     <>
-      <Head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(structuredData),
-          }}
-        />
-      </Head>
       <div className="min-h-screen bg-stone-50 w-full overflow-x-hidden">
         <div className="max-w-7xl mx-auto px-4 py-8 w-full">
           <BackButton href="/" productId={product.id} />
@@ -78,11 +50,11 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
           <div className="grid md:grid-cols-2 gap-6 md:gap-8">
             <div className="space-y-4">
               <div className="relative w-full h-[28rem] bg-stone-100 rounded-2xl overflow-hidden">
-                {product.image && (
+                {!imageError && product.image && (
                   <div
                     className="absolute inset-0"
                     style={{
-                      backgroundImage: `url(${product.image})`,
+                      backgroundImage: `url(${displayImage})`,
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
                       backgroundRepeat: 'no-repeat',
@@ -91,17 +63,15 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
                     }}
                   />
                 )}
-                {product.image ? (
-                  <img
-                    src={product.image}
+                {displayImage ? (
+                  <Image
+                    src={displayImage}
                     alt={product.name}
-                    className="relative w-full h-full object-contain z-10"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      if (target.src !== 'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=400') {
-                        target.src = 'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=400';
-                      }
-                    }}
+                    fill
+                    priority
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="relative object-contain z-10"
+                    onError={handleImageError}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-stone-200">
