@@ -117,7 +117,7 @@ const CouponSection: React.FC<CouponSectionProps> = ({ promotions, subtotal }) =
             {/* Coupon Input */}
             {!appliedCoupon && (
                 <div className="mb-4">
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                         <input
                             type="text"
                             value={couponInput}
@@ -131,7 +131,7 @@ const CouponSection: React.FC<CouponSectionProps> = ({ promotions, subtotal }) =
                         <button
                             onClick={handleInputApply}
                             disabled={!couponInput.trim()}
-                            className="bg-amber-900 text-white px-4 py-2 rounded-lg font-semibold hover:bg-amber-800 disabled:bg-stone-300 disabled:cursor-not-allowed transition-colors"
+                            className="w-full sm:w-auto bg-amber-900 text-white px-4 py-2 rounded-lg font-semibold hover:bg-amber-800 disabled:bg-stone-300 disabled:cursor-not-allowed transition-colors"
                         >
                             Apply
                         </button>

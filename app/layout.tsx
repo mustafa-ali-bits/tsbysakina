@@ -65,6 +65,11 @@ export const metadata: Metadata = {
     google: '1mAzNDvptUdFL9dbhMeY6wiBlqjzOg6m7O6ii9u_rm8',
   },
   viewport: 'width=device-width, initial-scale=1',
+  icons: {
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
+  },
 }
 
 export default function RootLayout({
@@ -81,7 +86,7 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className}>
-        <Analytics/>
+        <Analytics />
         <CartProvider>
           {children}
         </CartProvider>
