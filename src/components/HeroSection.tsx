@@ -137,7 +137,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ promotions }) => {
                 // Show logo while checking images
                 <div className="relative aspect-square w-full">
                   <NextImage
-                    src="/logo.jpeg"
+                    src="/IMG_7208.PNG"
                     alt="The Sweet Tooth by Sakina Logo"
                     fill
                     className="object-contain drop-shadow-2xl rounded-2xl"
@@ -155,7 +155,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ promotions }) => {
               ) : (
                 <div className="relative aspect-square w-full">
                   <NextImage
-                    src="/logo.jpeg"
+                    src="/IMG_7208.PNG"
                     alt="The Sweet Tooth by Sakina Logo"
                     fill
                     className="object-contain drop-shadow-2xl rounded-2xl"

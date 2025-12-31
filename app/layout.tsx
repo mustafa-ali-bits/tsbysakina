@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     siteName: 'The Sweet Tooth by Sakina',
     images: [
       {
-        url: '/logo.jpeg',
+        url: '/IMG_7208.PNG',
         width: 1200,
         height: 630,
         alt: 'The Sweet Tooth by Sakina - Handcrafted Chocolates',
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'The Sweet Tooth by Sakina - Handcrafted Chocolates & Desserts',
     description: 'Discover handcrafted chocolates, brownies & cookies made fresh with premium ingredients.',
-    images: ['/logo.jpeg'],
+    images: ['/IMG_7208.PNG'],
   },
   robots: {
     index: true,
