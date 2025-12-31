@@ -12,6 +12,13 @@ interface CartItem {
   variant?: string;
 }
 
+export interface AppliedCoupon {
+  name: string;
+  discount: number;
+  discountType: 'Fixed' | 'Percentage';
+  minOrderValue: number;
+}
+
 interface CartContextType {
   cart: CartItem[];
   addToCart: (product: { id: number; name: string; price: number; image: string }, quantity: number, variant?: string, customizationNote?: string, startPosition?: { x: number; y: number }) => void;
@@ -22,6 +29,10 @@ interface CartContextType {
   clearCart: () => void;
   alert: { show: boolean; productName: string; variant?: string; quantity: number; startPosition?: { x: number; y: number }; productImage?: string } | null;
   closeAlert: () => void;
+  // Coupon methods
+  appliedCoupon: AppliedCoupon | null;
+  applyCoupon: (coupon: AppliedCoupon) => void;
+  removeCoupon: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -40,15 +51,20 @@ interface CartProviderProps {
 
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
   const [alert, setAlert] = useState<{ show: boolean; productName: string; variant?: string; quantity: number; startPosition?: { x: number; y: number }; productImage?: string } | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Load cart from localStorage after hydration
+  // Load cart and coupon from localStorage after hydration
   React.useEffect(() => {
     try {
       const savedCart = localStorage.getItem('cart');
       if (savedCart) {
         setCart(JSON.parse(savedCart));
+      }
+      const savedCoupon = localStorage.getItem('appliedCoupon');
+      if (savedCoupon) {
+        setAppliedCoupon(JSON.parse(savedCoupon));
       }
     } catch (error) {
       console.error('Error loading cart from localStorage:', error);
@@ -66,6 +82,21 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       }
     }
   }, [cart, isHydrated]);
+
+  // Save coupon to localStorage whenever it changes (only after hydration)
+  React.useEffect(() => {
+    if (isHydrated && typeof window !== 'undefined') {
+      try {
+        if (appliedCoupon) {
+          localStorage.setItem('appliedCoupon', JSON.stringify(appliedCoupon));
+        } else {
+          localStorage.removeItem('appliedCoupon');
+        }
+      } catch (error) {
+        console.error('Error saving coupon to localStorage:', error);
+      }
+    }
+  }, [appliedCoupon, isHydrated]);
 
   const addToCart = (product: { id: number; name: string; price: number; image: string }, quantity: number, variant?: string, customizationNote?: string, startPosition?: { x: number; y: number }) => {
     setCart(prevCart => {
@@ -139,6 +170,15 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const clearCart = () => {
     setCart([]);
+    setAppliedCoupon(null);
+  };
+
+  const applyCoupon = (coupon: AppliedCoupon) => {
+    setAppliedCoupon(coupon);
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
   };
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -153,7 +193,10 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       totalItems,
       clearCart,
       alert,
-      closeAlert
+      closeAlert,
+      appliedCoupon,
+      applyCoupon,
+      removeCoupon
     }}>
       {children}
     </CartContext.Provider>

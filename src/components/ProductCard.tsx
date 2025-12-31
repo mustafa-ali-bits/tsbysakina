@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Star } from 'lucide-react';
 import { Product } from '../types/product';
@@ -20,22 +21,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const savings = ProductUtils.getSavingsAmount(product.mrp, product.price);
   const { addToCart } = useCart();
   const [selectedVariant, setSelectedVariant] = React.useState(DEFAULT_VARIANT);
+  const [imageError, setImageError] = React.useState(false);
+  const [isLoaded, setIsLoaded] = React.useState(false);
   const router = useRouter();
+
+  const fallbackImage = 'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=400';
+  const displayImage = imageError ? fallbackImage : product.image;
 
   return (
     <div id={`product-${product.id}`} className="group bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer" onClick={() => router.push(`/products/${product.id}`)}>
       <div className="relative h-80 md:h-96 overflow-hidden bg-stone-100">
-        {product.image ? (
-          <img
-            src={product.image}
+        {displayImage ? (
+          <Image
+            src={displayImage}
             alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              if (target.src !== 'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=400') {
-                target.src = 'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=400';
-              }
-            }}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            onLoad={() => setIsLoaded(true)}
+            className={`object-cover group-hover:scale-110 transition-all duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+            onError={() => !imageError && setImageError(true)}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-stone-200">

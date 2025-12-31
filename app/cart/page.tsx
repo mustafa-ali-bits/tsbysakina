@@ -1,29 +1,89 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useCart } from '../../src/context/CartContext';
 import { Trash2, Plus, Minus, MessageCircle } from 'lucide-react';
+import CouponSection from '@/components/CouponSection';
+import { Promotion } from '@/types/promotion';
 
 const CartPage: React.FC = () => {
-  const { cart, updateQuantity, removeFromCart, updateCustomization, totalItems } = useCart();
+  const { cart, updateQuantity, removeFromCart, updateCustomization, totalItems, appliedCoupon, removeCoupon } = useCart();
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [loadingPromotions, setLoadingPromotions] = useState(true);
+
+  // Fetch promotions for coupon section
+  useEffect(() => {
+    const fetchPromotions = async () => {
+      try {
+        const response = await fetch('/api/promotions');
+        if (response.ok) {
+          const data = await response.json();
+          setPromotions(data);
+        }
+      } catch (error) {
+        console.error('Error fetching promotions:', error);
+      } finally {
+        setLoadingPromotions(false);
+      }
+    };
+
+    fetchPromotions();
+  }, []);
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  // Calculate discount based on applied coupon
+  const calculateDiscount = () => {
+    if (!appliedCoupon) return 0;
+
+    // Validate min order value - if not met, auto-remove coupon
+    if (appliedCoupon.minOrderValue > 0 && subtotal < appliedCoupon.minOrderValue) {
+      return 0;
+    }
+
+    if (appliedCoupon.discountType === 'Percentage') {
+      return subtotal * (appliedCoupon.discount / 100);
+    }
+    return appliedCoupon.discount;
+  };
+
+  const discount = calculateDiscount();
   const deliveryFee = subtotal > 800 ? 0 : 60; // Free delivery over ₹800
-  const total = subtotal + deliveryFee;
+  const total = subtotal - discount + deliveryFee;
+
+  // Auto-remove coupon if cart drops below min order value
+  useEffect(() => {
+    if (appliedCoupon && appliedCoupon.minOrderValue > 0 && subtotal < appliedCoupon.minOrderValue) {
+      removeCoupon();
+    }
+  }, [subtotal, appliedCoupon, removeCoupon]);
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
-  const [showCustomization, setShowCustomization] = useState<{[key: string]: boolean}>({});
+  const [showCustomization, setShowCustomization] = useState<{ [key: string]: boolean }>({});
 
   const handleOrderNow = () => {
-    const message = `New Order:\n\nCustomer Details:\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\n\nOrder Items:\n${cart.map(item => {
+    let message = `New Order:\n\nCustomer Details:\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\n\nOrder Items:\n${cart.map(item => {
       const variant = item.variant ? ` (${item.variant})` : '';
       const baseItem = `- ${item.name}${variant} x ${item.quantity}: ₹${(item.price * item.quantity).toFixed(2)}`;
       const customization = item.customization ? `\n  Customization: ${item.customization}` : '';
       return baseItem + customization;
-    }).join('\n')}\n\nSubtotal: ₹${subtotal.toFixed(2)}\nDelivery Fee: ${deliveryFee === 0 ? 'FREE' : `₹${deliveryFee}`}\nTotal: ₹${total.toFixed(2)}`;
+    }).join('\n')}\n\nSubtotal: ₹${subtotal.toFixed(2)}`;
+
+    // Add coupon information if applied
+    if (appliedCoupon && discount > 0) {
+      const discountLabel = appliedCoupon.discountType === 'Percentage'
+        ? `${appliedCoupon.discount}%`
+        : `₹${appliedCoupon.discount}`;
+      message += `\nCoupon Applied: ${appliedCoupon.name} (${discountLabel} OFF)`;
+      message += `\nDiscount: -₹${discount.toFixed(2)}`;
+    }
+
+    message += `\nDelivery Fee: ${deliveryFee === 0 ? 'FREE' : `₹${deliveryFee}`}`;
+    message += `\nTotal: ₹${total.toFixed(2)}`;
+
     const whatsappUrl = `https://wa.me/918955094830?text=${encodeURIComponent(message)}`;
     window.location.href = whatsappUrl;
   };
@@ -164,11 +224,25 @@ const CartPage: React.FC = () => {
             <div className="bg-white rounded-2xl shadow-md p-6 sticky top-4">
               <h2 className="text-xl font-serif font-bold text-amber-900 mb-6">Order Summary</h2>
 
+              {/* Coupon Section */}
+              {!loadingPromotions && (
+                <CouponSection promotions={promotions} subtotal={subtotal} />
+              )}
+
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-stone-600">
                   <span>Subtotal ({totalItems} items)</span>
                   <span>₹{subtotal.toFixed(2)}</span>
                 </div>
+
+                {/* Discount line */}
+                {appliedCoupon && discount > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Discount ({appliedCoupon.name})</span>
+                    <span>-₹{discount.toFixed(2)}</span>
+                  </div>
+                )}
+
                 <div className="flex justify-between text-stone-600">
                   <span>Delivery Fee</span>
                   <span className={deliveryFee === 0 ? 'text-green-600' : ''}>
@@ -192,6 +266,11 @@ const CartPage: React.FC = () => {
                   <span>Total</span>
                   <span>₹{total.toFixed(2)}</span>
                 </div>
+                {appliedCoupon && discount > 0 && (
+                  <p className="text-sm text-green-600 mt-1">
+                    You save ₹{discount.toFixed(2)} with this order!
+                  </p>
+                )}
               </div>
 
               <h3 className="text-lg font-semibold text-amber-900 mb-4">Delivery Information</h3>

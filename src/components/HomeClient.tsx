@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProductUtils } from '@/lib/productUtils';
 import { Product } from '@/types/product';
+import { Promotion } from '@/types/promotion';
 import Header from '@/components/Header';
 import ErrorBanner from '@/components/ErrorBanner';
 import HeroSection from '@/components/HeroSection';
@@ -16,13 +17,51 @@ import Footer from '@/components/Footer';
 
 interface HomeClientProps {
     initialProducts: Product[];
+    promotions: Promotion[];
 }
 
-const HomeClient: React.FC<HomeClientProps> = ({ initialProducts }) => {
+const HomeClient: React.FC<HomeClientProps> = ({ initialProducts, promotions }) => {
     const router = useRouter();
     const [products, setProducts] = useState<Product[]>(initialProducts);
     const loading = false; // Data is pre-fetched on server
     const error = initialProducts.length === 0 ? 'No products found' : null;
+
+    // Cache products in localStorage for faster subsequent loads
+    useEffect(() => {
+        if (typeof window !== 'undefined' && initialProducts.length > 0) {
+            try {
+                const cacheData = {
+                    products: initialProducts,
+                    timestamp: Date.now(),
+                };
+                localStorage.setItem('productsCache', JSON.stringify(cacheData));
+            } catch (e) {
+                console.error('Error caching products:', e);
+            }
+        }
+    }, [initialProducts]);
+
+    // On mount, check if we have cached products (for instant display)
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            try {
+                const cached = localStorage.getItem('productsCache');
+                if (cached) {
+                    const { products: cachedProducts, timestamp } = JSON.parse(cached);
+                    // Use cache if less than 5 minutes old and we have no server products
+                    const cacheAge = Date.now() - timestamp;
+                    if (cacheAge < 5 * 60 * 1000 && cachedProducts.length > 0) {
+                        // Server products take precedence, cache is just for display
+                        if (initialProducts.length === 0) {
+                            setProducts(cachedProducts);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('Error reading products cache:', e);
+            }
+        }
+    }, []);
 
     // Sync state with props if they change (e.g. after revalidation)
     useEffect(() => {
@@ -137,11 +176,7 @@ const HomeClient: React.FC<HomeClientProps> = ({ initialProducts }) => {
             <Header onRefresh={handleRefresh} isLoading={loading} />
             <ErrorBanner error={error} />
 
-            {/* 
-        Pass products to HeroSection if it needs them (e.g. for featured items).
-        Currently HeroSection doesn't seem to take props based on previous view_file.
-      */}
-            <HeroSection />
+            <HeroSection promotions={promotions} />
 
             <CategoryNav
                 categories={categories}
