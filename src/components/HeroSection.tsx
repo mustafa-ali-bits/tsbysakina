@@ -135,12 +135,12 @@ const HeroSection: React.FC<HeroSectionProps> = ({ promotions }) => {
             <div className="bg-transparent transform hover:scale-105 transition-transform duration-300">
               {isLoading ? (
                 // Show logo while checking images
-                <div className="relative aspect-video md:aspect-square w-full">
+                <div className="relative aspect-square w-full">
                   <NextImage
                     src="/logo.jpeg"
                     alt="The Sweet Tooth by Sakina Logo"
                     fill
-                    className="object-contain drop-shadow-2xl"
+                    className="object-contain drop-shadow-2xl rounded-2xl"
                   />
                 </div>
               ) : currentPromotion ? (
@@ -149,16 +149,16 @@ const HeroSection: React.FC<HeroSectionProps> = ({ promotions }) => {
                     src={currentPromotion.imageUrl}
                     alt={currentPromotion.description || 'Promotion'}
                     fill
-                    className="object-cover drop-shadow-2xl rounded-lg transition-opacity duration-500"
+                    className="object-cover drop-shadow-2xl rounded-2xl transition-opacity duration-500"
                   />
                 </div>
               ) : (
-                <div className="relative aspect-video md:aspect-square w-full">
+                <div className="relative aspect-square w-full">
                   <NextImage
                     src="/logo.jpeg"
                     alt="The Sweet Tooth by Sakina Logo"
                     fill
-                    className="object-contain drop-shadow-2xl"
+                    className="object-contain drop-shadow-2xl rounded-2xl"
                   />
                 </div>
               )}
